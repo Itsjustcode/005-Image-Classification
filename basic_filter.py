@@ -1,20 +1,65 @@
-from PIL import Image, ImageFilter
-import matplotlib.pyplot as plt
+from PIL import Image, ImageOps, ImageEnhance, ImageFilter
+import os
 
-def apply_blur_filter(image_path):
+def apply_filters(image_path):
+    """
+    Apply Solarize, Posterize, Color Enhancement, and a Spaghetti-Like filter to an image
+    and save the results.
+    """
     try:
-        img = Image.open(image_path)
-        img_resized = img.resize((128, 128))
-        img_blurred = img_resized.filter(ImageFilter.GaussianBlur(radius=2))
+        # Check if the input file exists
+        if not os.path.exists(image_path):
+            print(f"Error: File '{image_path}' not found. Make sure the image exists in the correct directory.")
+            return
 
-        plt.imshow(img_blurred)
-        plt.axis('off')
-        plt.savefig("blurred_image.png")
-        print("Processed image saved as 'blurred_image.png'.")
+        # Load the image
+        img = Image.open(image_path)
+        print(f"Image loaded: {image_path}, Size: {img.size}, Mode: {img.mode}")
+
+        # Ensure the image is in RGB format
+        img = img.convert("RGB")
+        print("Image converted to RGB format.")
+
+        # Apply Solarize Effect
+        try:
+            solarized_img = ImageOps.solarize(img)
+            solarized_img.save("solarized_result.png")
+            print("Solarize effect applied and saved as 'solarized_result.png'.")
+        except Exception as e:
+            print(f"Error applying Solarize filter: {e}")
+
+        # Apply Posterize Effect
+        try:
+            posterized_img = ImageOps.posterize(img, bits=3)  # Reduce to 3 bits per channel
+            posterized_img.save("posterized_result.png")
+            print("Posterize effect applied and saved as 'posterized_result.png'.")
+        except Exception as e:
+            print(f"Error applying Posterize filter: {e}")
+
+        # Apply Color Enhancement
+        try:
+            enhancer = ImageEnhance.Color(img)
+            enhanced_img = enhancer.enhance(2.0)  # Double the color saturation
+            enhanced_img.save("color_enhanced_result.png")
+            print("Color enhancement applied and saved as 'color_enhanced_result.png'.")
+        except Exception as e:
+            print(f"Error applying Color Enhancement filter: {e}")
+
+        # Apply Spaghetti-Like Filter (Contour + Exaggerated Colors)
+        try:
+            print("Applying Spaghetti-like filter...")
+            spaghetti_img = img.filter(ImageFilter.CONTOUR)  # Add contour effect
+            enhancer = ImageEnhance.Color(spaghetti_img)
+            spaghetti_img = enhancer.enhance(3.0)  # Triple the color saturation
+            spaghetti_img.save("spaghetti_result.png")
+            print("Spaghetti-like filter applied and saved as 'spaghetti_result.png'.")
+        except Exception as e:
+            print(f"Error applying Spaghetti-like filter: {e}")
 
     except Exception as e:
         print(f"Error processing image: {e}")
 
 if __name__ == "__main__":
-    image_path = "Golden_Two-unsplash.jpg"  # Replace with the path to your image file
-    apply_blur_filter(image_path)
+    # Path to the input image
+    image_path = "Golden_Two-unsplash.jpg"  # Replace with the correct image path
+    apply_filters(image_path)
